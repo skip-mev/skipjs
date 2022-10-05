@@ -37,5 +37,12 @@
   "bugs": {
     "url": "https://github.com/skip-mev/skipjs/issues"
   },
-  "homepage": "https://github.com/skip-mev/skipjs#readme"
+  "homepage": "https://github.com/skip-mev/skipjs#readme",
+  "dependencies": {
+    "@cosmjs/amino": "^0.29.0",
+    "@cosmjs/crypto": "^0.29.0",
+    "@cosmjs/proto-signing": "^0.29.0",
+    "cosmjs-types": "^0.5.1",
+    "node-fetch-commonjs": "^3.2.4"
+  }
 }
