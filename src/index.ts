@@ -59,8 +59,7 @@ async function helperSignBundle(txs: Uint8Array[], signer: OfflineSigner, signer
     if (account === undefined) {
         throw new Error(`No account found for signer address ${signerAddress}`);
     }
-    // private key is not defined here for some reason
-    const {privkey, pubkey } = account;
+    const { privkey, pubkey } = account;
     const bundle = encode({
         txs: txs
     }, minimal_1.Writer.create()).finish()
