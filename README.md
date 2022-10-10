@@ -78,11 +78,16 @@ const txRaw = await client.sign(address, [msg], fee, '', {
 ```
 Create your SkipBundleClient:
 ```
-const skipBundleClient = new SkipBundleClient(sentinelRpcEndpoint)
+const skipBundleClient = new SkipBundleClient(SENTINEL_RPC_ENDPOINT)
 ```
+
+The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
 
 Sign and send your bundle:
 ```
 const signedBundle = await skipBundleClient.signBundle([txRaw], signer, BUNDLE_SENDER_ADDRESS)
 const sendBundle = await skipBundleClient.sendBundle(signedBundle, DESIRED_HEIGHT_FOR_BUNDLE)
 ```
+
+`BUNDLE_SENDER_ADDRESS` should be a string, the on-chain address of the account of the bundle signer.
+`DESIRED_HEIGHT_FOR_BUNDLE` should be a number.
