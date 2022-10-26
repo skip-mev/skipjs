@@ -60,10 +60,7 @@ async function helperSignBundle(txs: Uint8Array[], signer: OfflineSigner, signer
         throw new Error(`No account found for signer address ${signerAddress}`);
     }
     const { privkey, pubkey } = account;
-    const bundle = encode({
-        txs: txs
-    }, minimal_1.Writer.create()).finish()
-    const hashedBundle = sha256(bundle)
+    const hashedBundle = sha256(flatten(txs))
     const signature = await Secp256k1.createSignature(hashedBundle, privkey)
     const signatureBytes = new Uint8Array([...signature.r(32), ...signature.s(32)])
     const stdSignature = encodeSecp256k1Signature(pubkey, signatureBytes)
@@ -73,15 +70,17 @@ async function helperSignBundle(txs: Uint8Array[], signer: OfflineSigner, signer
     }
 }
 
-// @ts-ignore
-function encode(message, writer) {
-    // @ts-ignore
-    if (writer === void 0) { writer = minimal_1["default"].Writer.create(); }
-    for (var _i = 0, _a = message.txs; _i < _a.length; _i++) {
-        var v = _a[_i];
-        writer.uint32(10).bytes(v);
+function flatten(arr: Uint8Array[]): Uint8Array {
+    let totalLength = arr.reduce((acc, value) => acc + value.length, 0);
+    let result = new Uint8Array(totalLength);
+
+    let length = 0;
+    for (let a of arr) {
+        result.set(a, length);
+        length += a.length;
     }
-    return writer;
+
+    return result;
 }
 
 export type SignedBundle = {
