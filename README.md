@@ -9,20 +9,28 @@ skipjs exposes a single default export, `SkipBundleClient`.
 `signBundle` and `sendBundle`.
 
 ```
-export type SignedBundle = {
+type SignedBundle = {
   transactions: Array<string>
   pubKey: string
   signature: string
 }
 
-async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): Promise<SignedBundle>
+async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): SignedBundle
 
-async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean)
+async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
 
+## signBundle
+`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `TxRaw` (from cosmjs-types), an `OfflineSigner` (from cosmjs), and a `signerAddress` (the address of the searcher).
+It returns a `SignedBundle`, which can be passed to `sendBundle` to send the bundle to the relayer.
 
+## sendBundle
 
-Example usage:
+`sendBundle` sends a `SignedBundle` to the relayer.
+`desiredHeight` is the desired height for the bundle to be included on-chain. Submitted bundles will only be considered in the auction for this height. Passing `0` as `desiredHeight` will cause the relayer to consider the bundle for the immediate next height.
+`sync` is an optional parameter that defaults to `false`. If set to `true`, the promise will not resolve until the bundle has been simulated. If set to `false`, the promise resolves on bundle submission, prior to its simulation.
+
+## Example usage:
 Import `SkipBundleClient`, as well as a way to get an `OfflineSigner`, and other utils for the chain you're using. For this example, we'll use Juno.
 ```
 import { SkipBundleClient } from '@skip-mev/skipjs'
