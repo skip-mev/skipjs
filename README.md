@@ -15,9 +15,9 @@ export type SignedBundle = {
   signature: string
 }
 
-async sendBundle(bundle: SignedBundle, desiredHeight: number) -> SignedBundle
+async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): SignedBundle
 
-asyncsendBundle(bundle: SignedBundle, desiredHeight: number) -> object
+async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
 
 Example usage:
