@@ -37,7 +37,7 @@ export class SkipBundleClient {
     return response.json()
   }
 
-  public async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string) {
+  public async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): Promise<SignedBundle> {
     const transactionsToSign = []
     const b64Transactions = []
     for (let transaction of transactions) {

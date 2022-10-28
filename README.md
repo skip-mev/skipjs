@@ -1,6 +1,6 @@
 # skipjs
 
-A util for signing and sending bundles through the Skip sentinel.
+A util for signing and sending bundles through the Skip relayer.
 
 # Usage
 
@@ -15,10 +15,12 @@ export type SignedBundle = {
   signature: string
 }
 
-async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): SignedBundle
+async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): Promise<SignedBundle>
 
-async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
+async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean)
 ```
+
+
 
 Example usage:
 Import `SkipBundleClient`, as well as a way to get an `OfflineSigner`, and other utils for the chain you're using. For this example, we'll use Juno.
@@ -78,10 +80,10 @@ const txRaw = await client.sign(address, [msg], fee, '', {
 ```
 Create your SkipBundleClient:
 ```
-const skipBundleClient = new SkipBundleClient(SENTINEL_RPC_ENDPOINT)
+const skipBundleClient = new SkipBundleClient(RELAYER_RPC_ENDPOINT)
 ```
 
-The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
+The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip relayer endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
 
 Sign and send your bundle:
 ```
