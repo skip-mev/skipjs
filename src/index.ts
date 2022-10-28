@@ -12,7 +12,7 @@ export class SkipBundleClient {
     this.sentinelRPCEndpoint = sentinelRPCEndpoint
   }
 
-  public async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean) {
+  public async sendBundle(bundle: SignedBundle, desiredHeight: number, sync: boolean) {
       let method = 'broadcast_bundle_async'
       if (sync) {
           method = 'broadcast_bundle_sync'
