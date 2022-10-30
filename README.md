@@ -1,6 +1,6 @@
 # skipjs
 
-A util for signing and sending bundles through the Skip sentinel.
+A util for signing and sending bundles through the Skip relayer.
 
 # Usage
 
@@ -9,18 +9,28 @@ skipjs exposes a single default export, `SkipBundleClient`.
 `signBundle` and `sendBundle`.
 
 ```
-export type SignedBundle = {
+type SignedBundle = {
   transactions: Array<string>
   pubKey: string
   signature: string
 }
 
-async sendBundle(bundle: SignedBundle, desiredHeight: number) -> SignedBundle
+async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): SignedBundle
 
-asyncsendBundle(bundle: SignedBundle, desiredHeight: number) -> object
+async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
 
-Example usage:
+## signBundle
+`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `TxRaw` (from cosmjs-types), an `OfflineSigner` (from cosmjs), and a `signerAddress` (the address of the searcher).
+It returns a `SignedBundle`, which can be passed to `sendBundle` to send the bundle to the relayer.
+
+## sendBundle
+
+`sendBundle` sends a `SignedBundle` to the relayer.
+`desiredHeight` is the desired height for the bundle to be included on-chain. Submitted bundles will only be considered in the auction for this height. Passing `0` as `desiredHeight` will cause the relayer to consider the bundle for the immediate next height.
+`sync` specifies whether to use the async or sync RPC endpoint. If set to `true`, the promise will not resolve until the bundle has been simulated. If set to `false`, the promise resolves on bundle submission, prior to its simulation.
+
+## Example usage:
 Import `SkipBundleClient`, as well as a way to get an `OfflineSigner`, and other utils for the chain you're using. For this example, we'll use Juno.
 ```
 import { SkipBundleClient } from '@skip-mev/skipjs'
@@ -78,10 +88,10 @@ const txRaw = await client.sign(address, [msg], fee, '', {
 ```
 Create your SkipBundleClient:
 ```
-const skipBundleClient = new SkipBundleClient(SENTINEL_RPC_ENDPOINT)
+const skipBundleClient = new SkipBundleClient(RELAYER_RPC_ENDPOINT)
 ```
 
-The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
+The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip relayer endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
 
 Sign and send your bundle:
 ```

@@ -12,10 +12,15 @@ export class SkipBundleClient {
     this.sentinelRPCEndpoint = sentinelRPCEndpoint
   }
 
-  public async sendBundle(bundle: SignedBundle, desiredHeight: number) {
+  public async sendBundle(bundle: SignedBundle, desiredHeight: number, sync: boolean) {
+      let method = 'broadcast_bundle_async'
+      if (sync) {
+          method = 'broadcast_bundle_sync'
+      }
+
     // Form request data
     const data = {
-        'method': 'broadcast_bundle_sync',
+        'method': method,
         'params': [bundle.transactions, desiredHeight.toString(), bundle.pubKey, bundle.signature],
         'id': 1
     }
@@ -29,10 +34,10 @@ export class SkipBundleClient {
         body: JSON.stringify(data)
     })
 
-    return response.json();
+    return response.json()
   }
 
-  public async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string) {
+  public async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): Promise<SignedBundle> {
     const transactionsToSign = []
     const b64Transactions = []
     for (let transaction of transactions) {
@@ -55,15 +60,12 @@ export class SkipBundleClient {
 async function helperSignBundle(txs: Uint8Array[], signer: OfflineSigner, signerAddress: string) {
     // @ts-ignore
     const accounts = await signer.getAccountsWithPrivkeys(); 
-    const account = accounts.find(({address} : {address:string}) => address === signerAddress);
+    const account = accounts.find(({address} : {address:string}) => address === signerAddress)
     if (account === undefined) {
-        throw new Error(`No account found for signer address ${signerAddress}`);
+        throw new Error(`No account found for signer address ${signerAddress}`)
     }
-    const { privkey, pubkey } = account;
-    const bundle = encode({
-        txs: txs
-    }, minimal_1.Writer.create()).finish()
-    const hashedBundle = sha256(bundle)
+    const { privkey, pubkey } = account
+    const hashedBundle = sha256(flatten(txs))
     const signature = await Secp256k1.createSignature(hashedBundle, privkey)
     const signatureBytes = new Uint8Array([...signature.r(32), ...signature.s(32)])
     const stdSignature = encodeSecp256k1Signature(pubkey, signatureBytes)
@@ -73,15 +75,17 @@ async function helperSignBundle(txs: Uint8Array[], signer: OfflineSigner, signer
     }
 }
 
-// @ts-ignore
-function encode(message, writer) {
-    // @ts-ignore
-    if (writer === void 0) { writer = minimal_1["default"].Writer.create(); }
-    for (var _i = 0, _a = message.txs; _i < _a.length; _i++) {
-        var v = _a[_i];
-        writer.uint32(10).bytes(v);
+function flatten(arr: Uint8Array[]): Uint8Array {
+    let totalLength = arr.reduce((acc, value) => acc + value.length, 0)
+    let result = new Uint8Array(totalLength)
+
+    let length = 0;
+    for (let a of arr) {
+        result.set(a, length)
+        length += a.length
     }
-    return writer;
+
+    return result
 }
 
 export type SignedBundle = {
