@@ -15,13 +15,13 @@ type SignedBundle = {
   signature: string
 }
 
-async signBundle(transactions: Array<TxRaw>, signer: OfflineSigner, signerAddress: string): SignedBundle
+async signBundle(transactions: Array<TxRaw>, privKey: Uint8Array): SignedBundle
 
 async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
 
 ## signBundle
-`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `TxRaw` (from cosmjs-types), an `OfflineSigner` (from cosmjs), and a `signerAddress` (the address of the searcher).
+`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `TxRaw` (from cosmjs-types) and a sepc256k1 private key, used to sign the bundle.
 It returns a `SignedBundle`, which can be passed to `sendBundle` to send the bundle to the relayer.
 
 ## sendBundle
@@ -31,11 +31,11 @@ It returns a `SignedBundle`, which can be passed to `sendBundle` to send the bun
 `sync` specifies whether to use the async or sync RPC endpoint. If set to `true`, the promise will not resolve until the bundle has been simulated. If set to `false`, the promise resolves on bundle submission, prior to its simulation.
 
 ## Example usage:
-Import `SkipBundleClient`, as well as a way to get an `OfflineSigner`, and other utils for the chain you're using. For this example, we'll use Juno.
+Import `SkipBundleClient`, as well as a way to get an sepc256k1 private key, and other utils for the chain you're using. For this example, we'll use Juno.
 ```
 import { SkipBundleClient } from '@skip-mev/skipjs'
-import { getOfflineSignerProto } from 'cosmjs-utils';
-import { juno, getSigningCosmosClient, cosmos } from 'juno-network';
+import { getOfflineSignerProto } from 'cosmjs-utils'
+import { juno, getSigningCosmosClient, cosmos } from 'juno-network'
 import { chains } from 'chain-registry'
 ```
 Create your transactions:
@@ -43,7 +43,7 @@ Create your transactions:
 const {
     multiSend,
     send
-} = cosmos.bank.v1beta1.MessageComposer.fromPartial;
+} = cosmos.bank.v1beta1.MessageComposer.fromPartial
 
 var msg = send({
     amount: [
@@ -54,7 +54,7 @@ var msg = send({
     ],
     toAddress: toAddress,
     fromAddress: fromAddress
-});
+})
 
 const fee = {
     amount: [
@@ -64,28 +64,36 @@ const fee = {
     }
     ],
     gas: '86364'
-};
+}
 ```
 
 Sign your transactions:
 ```
+const mnemonic = "" // Insert your mnemonic
 const signer = await getOfflineSignerProto({
     mnemonic,
     chain: chains.find(({ chain_name }) => chain_name === 'juno')
-});
+})
 
 const client = await getSigningCosmosClient({
   rpcEndpoint,
   signer
-});
+})
 
 const { accountNumber, sequence } = await client.getSequence(address);
 const txRaw = await client.sign(address, [msg], fee, '', {
     accountNumber: accountNumber,
     sequence: sequence,
-    chainId: 'juno-skip-1'
-});
+    chainId: 'juno-1'
+})
 ```
+
+Get the secp256k1 private key for signing the bundle.
+For example, this can be done with the cosmjs-utils offline signer:
+```
+const privKey = (await signer.getAccountsWithPrivkeys())[0].privkey
+```
+
 Create your SkipBundleClient:
 ```
 const skipBundleClient = new SkipBundleClient(RELAYER_RPC_ENDPOINT)
@@ -95,9 +103,8 @@ The RPC endpoint is an `ip:port` string that depends on the chain you're using. 
 
 Sign and send your bundle:
 ```
-const signedBundle = await skipBundleClient.signBundle([txRaw], signer, BUNDLE_SENDER_ADDRESS)
-const sendBundle = await skipBundleClient.sendBundle(signedBundle, DESIRED_HEIGHT_FOR_BUNDLE)
+const signedBundle = await skipBundleClient.signBundle([txRaw], privKey)
+const sendBundle = await skipBundleClient.sendBundle(signedBundle, DESIRED_HEIGHT_FOR_BUNDLE, true)
 ```
 
-`BUNDLE_SENDER_ADDRESS` should be a string, the on-chain address of the account of the bundle signer.
-`DESIRED_HEIGHT_FOR_BUNDLE` should be a number.
+`DESIRED_HEIGHT_FOR_BUNDLE` should be a number, where 0 asks the relayer to autodetermine the next height.
