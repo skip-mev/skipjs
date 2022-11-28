@@ -15,7 +15,7 @@ type SignedBundle = {
   signature: string
 }
 
-async signBundle(transactions: Array<string>, privKey: Uint8Array): SignedBundle
+async signBundle(transactions: string[], privKey: Uint8Array): SignedBundle
 
 async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
