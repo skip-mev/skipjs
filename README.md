@@ -15,14 +15,15 @@ type SignedBundle = {
   signature: string
 }
 
-async signBundle(transactions: Array<TxRaw>, privKey: Uint8Array): SignedBundle
+async signBundle(transactions: string[], privKey: Uint8Array): SignedBundle
 
 async sendBundle(bundle: SignedBundle, desiredHeight: number, sync?: boolean): Promise<object>
 ```
 
 ## signBundle
-`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `TxRaw` (from cosmjs-types) and a sepc256k1 private key, used to sign the bundle.
-It returns a `SignedBundle`, which can be passed to `sendBundle` to send the bundle to the relayer.
+`signBundle` is used to sign a bundle of transactions. It must be provided with an array of `string`, and a sepc256k1 private key, used to sign the bundle.
+The transactions argument should be an array of base64-encoded transaction strings. The encoded bytes can be either Cosmos SDK `TxRaw`s or Ethereum native transactions (such as those produced from `ethers`, for Ethermint EVM chains. See the examples for more details.
+`signBundle` returns a `SignedBundle`, which can be passed to `sendBundle` to send the bundle to the relayer.
 
 ## sendBundle
 
@@ -88,6 +89,11 @@ const txRaw = await client.sign(address, [msg], fee, '', {
 })
 ```
 
+Convert your TxRaw into a base64 string:
+```
+const txString = Buffer.from(txRaw).toString('base64')
+```
+
 Get the secp256k1 private key for signing the bundle.
 For example, this can be done with the cosmjs-utils offline signer:
 ```
@@ -103,7 +109,7 @@ The RPC endpoint is an `ip:port` string that depends on the chain you're using. 
 
 Sign and send your bundle:
 ```
-const signedBundle = await skipBundleClient.signBundle([txRaw], privKey)
+const signedBundle = await skipBundleClient.signBundle([txString], privKey)
 const sendBundle = await skipBundleClient.sendBundle(signedBundle, DESIRED_HEIGHT_FOR_BUNDLE, true)
 ```
 
