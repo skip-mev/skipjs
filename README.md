@@ -91,7 +91,8 @@ const txRaw = await client.sign(address, [msg], fee, '', {
 
 Convert your TxRaw into a base64 string:
 ```
-const txString = Buffer.from(txRaw).toString('base64')
+import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx.js'
+const txString = Buffer.from(TxRaw.encode(txRaw).finish()).toString('base64')
 ```
 
 Get the secp256k1 private key for signing the bundle.
