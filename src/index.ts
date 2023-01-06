@@ -24,11 +24,11 @@ export class SkipBundleClient {
 
     // Use the web endpoint to send the request
     const response = await fetch(this.sentinelRPCEndpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
     })
 
     return response.json()
@@ -45,6 +45,34 @@ export class SkipBundleClient {
       pubKey: signedBundle.pubKey,
       signature: signedBundle.signature
     }
+  }
+}
+
+export class SkipSecureClient {
+  private sentinelRPCEndpoint: string
+
+  constructor(sentinelRPCEndpoint: string) {
+    this.sentinelRPCEndpoint = sentinelRPCEndpoint
+  }
+
+  public async sendSecureTransaction(transaction: string) {
+    // Form request data
+    const data = {
+      'method': 'broadcast_secure_tx',
+      'params': [transaction],
+      'id': 1
+    }
+
+    // Use the web endpoint to send the request
+    const response = await fetch(this.sentinelRPCEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+
+    return response.json()
   }
 }
 
