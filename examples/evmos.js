@@ -5,7 +5,7 @@ import ethers from 'ethers'
 import fs from 'fs'
 
 const MNEMONIC = "MNEMONIC"
-const RELAYER_RPC_ENDPOINT = "RELAYER_RPC_ENDPOINT"
+const SENTINEL_RPC_ENDPOINT = "SENTINEL_RPC_ENDPOINT"
 
 // Testnet RPC
 const provider = new ethers.providers.JsonRpcProvider("https://eth.bd.evmos.dev:8545");
@@ -34,10 +34,10 @@ const signedTx = await account.signTransaction(unsignedTx);
 const b64Tx = Buffer.from(signedTx.slice(2), 'hex').toString('base64');
 
 // Provide any other txs in the bundle, and a private key to sign the bundle
-const skipBundleClient = new SkipBundleClient(RELAYER_RPC_ENDPOINT);
+const skipBundleClient = new SkipBundleClient(SENTINEL_RPC_ENDPOINT);
 const signedBundle = await skipBundleClient.signBundle([b64Tx, otherTx], privKey);
 
-// Send the bundle to the relayer
+// Send the bundle to the sentinel
 const sendBundle = skipBundleClient.sendBundle(signedBundle, 0, true).then((res) => {
   console.log(res);
 })
