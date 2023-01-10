@@ -58,7 +58,7 @@ export class SkipSecureClient {
   public async sendSecureTransaction(transaction: string) {
     // Form request data
     const data = {
-      'method': 'broadcast_secure_tx',
+      'method': 'broadcast_tx_sync',
       'params': [transaction],
       'id': 1
     }
