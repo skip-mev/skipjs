@@ -1,11 +1,9 @@
 # skipjs
 
-A util for 
+A util for:
 
-1. Signing and sending bundles
-2. Sending secure transactions
-
-through the Skip Sentinel.
+1. Signing and sending bundles of atomic transactions for inclusion by validators participating in the [Skip Select blockspace market](docs.skip.money)
+2. Sending secure transactions through the [Skip Secure RPC](docs.skip.money/skip-secure-rpc) to avoid the public mempool
 
 # Usage
 
@@ -119,7 +117,7 @@ Create your SkipBundleClient:
 const skipBundleClient = new SkipBundleClient(SENTINEL_RPC_ENDPOINT)
 ```
 
-The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
+The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](docs.skip.money/chain-configuration).
 
 Sign and send your bundle:
 ```
@@ -132,7 +130,10 @@ const sendBundleResponse = await skipBundleClient.sendBundle(signedBundle, DESIR
 # SkipSecureClient
 
 ## sendSecureTransaction
-`sendSecureTransaction` is used to send transactions privately to the Skip Sentinel to keep the transaction hidden from the public mempool. The Sentinel attempts to privately send the transaction to the a Skip proposer for 5 minutes until discarding the transaction. It takes a single transaction, where the memo of the transaction must be equal to the sender's address.
+`sendSecureTransaction` is used to send transactions privately through the [Skip Secure RPC](docs.skip.money/skip-secure-rpc) to keep the transaction hidden from the public mempool. The Sentinel attempts to privately send the transaction to a proposer participating in Skip Select for 5 minutes until discarding the transaction: 
+
+1. It takes a single transaction
+2. The memo of the transaction must be equal to the sender's address
 
 ## Example usage:
 
@@ -205,7 +206,7 @@ Create your SkipSecureClient:
 const skipSecureClient = new SkipSecureClient(SENTINEL_RPC_ENDPOINT)
 ```
 
-The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](https://www.notion.so/skip-protocol/Skip-Configurations-By-Chain-a6076cfa743f4ab38194096403e62f3c).
+The RPC endpoint is an `ip:port` string that depends on the chain you're using. Skip Sentinel endpoints for each chain can be found [here](docs.skip.money/chain-configuration).
 
 Send your secure transaction:
 ```
