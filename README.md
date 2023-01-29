@@ -69,6 +69,17 @@ var msg = send({
     fromAddress: fromAddress
 })
 
+var msgToSkipAuctionHouse = send({
+    amount: [
+    {
+        denom: 'ujuno',
+        amount: '10'
+    }
+    ],
+    toAddress: skipAuctionHouseAddress,
+    fromAddress: fromAddress
+})
+
 const fee = {
     amount: [
     {
@@ -94,7 +105,7 @@ const client = await getSigningCosmosClient({
 })
 
 const { accountNumber, sequence } = await client.getSequence(address);
-const txRaw = await client.sign(address, [msg], fee, '', {
+const txRaw = await client.sign(address, [msg, msgToSkipAuctionHouse], fee, '', {
     accountNumber: accountNumber,
     sequence: sequence,
     chainId: 'juno-1'
@@ -152,13 +163,22 @@ const wallet = lcd.wallet(mk)
 const privKey = mk.privateKey
 ```
 
-Construct send token tx and convert it to base64 string.
+Construct message of send token to your contact address and another send token to [skip auction house address](https://docs.skip.money/searcher#winning-the-auction).
 ```
-const send = new MsgSend(
+const sendToYourContact = new MsgSend(
   wallet.key.accAddress('terra'), // requires prefix as a parameter
   'terra1dcegyrekltswvyy0xy69ydgxn9x8x32zdtapd8',
   { uluna: '1000000' },
 )
+const sendToSkipAuctionHouse = new MsgSend(
+  wallet.key.accAddress('terra'), // requires prefix as a parameter
+  'terra1dcegyrekltswvyy0xy69ydgxn9x8x32zdtapd8', // replace this with skip auction house address on the corresponding chain and network
+  { uluna: '1000000' }, // amount you send to skip to bid your tx
+)
+```
+
+Create the tx and convert it to base64 string.
+```
 const tx = await wallet.createAndSignTx({ msgs: [send] })
 const txString = Buffer.from(tx.toBytes()).toString('base64')
 ```
