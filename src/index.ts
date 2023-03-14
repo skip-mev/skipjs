@@ -30,8 +30,7 @@ export class SkipBundleClient {
       },
       body: JSON.stringify(data)
     })
-
-    return response.json()
+    return valid_resp(response)
   }
 
   public async signBundle(transactions: string[], privKey: Uint8Array): Promise<SignedBundle> {
@@ -71,8 +70,7 @@ export class SkipSecureClient {
       },
       body: JSON.stringify(data)
     })
-
-    return response.json()
+    return valid_resp(response)
   }
 }
 
@@ -86,6 +84,16 @@ async function helperSignBundle(txs: Uint8Array[], privKey: Uint8Array) {
     signature: stdSignature.signature,
     pubKey: stdSignature.pub_key.value
   }
+}
+
+function valid_resp(response){
+  let out 
+    if (response.status === 200){
+      out = response.json()
+    }else{
+      out = {result:{code:response.status, error: response.statusText}}
+    }
+    return out
 }
 
 function flatten(arr: Uint8Array[]): Uint8Array {
