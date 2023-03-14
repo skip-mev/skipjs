@@ -86,7 +86,7 @@ async function helperSignBundle(txs: Uint8Array[], privKey: Uint8Array) {
   }
 }
 
-function valid_resp(response){
+function valid_resp(response:any){
   let out 
     if (response.status === 200){
       out = response.json()
